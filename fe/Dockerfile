@@ -8,7 +8,7 @@ RUN npm install
 COPY . .
 
 # Build-time args
-ARG VITE_API_BASE_URL=https://be.rutayba.com
+ARG VITE_API_BASE_URL=https://vp.rutayba.com
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
 RUN npm run build
