@@ -7,6 +7,7 @@ from helpers.authentication_utils import get_current_user # Corrected import
 from sqlmodel import Session, SQLModel, Field
 from models.db import get_session
 from helpers.logging import setup_logger
+from helpers.redis_utils import reset_user_session
 
 logger = setup_logger("chat_api")
 
@@ -52,3 +53,11 @@ def query_api(app: FastAPI, prefix: str = "/api/v1"):
       return response
 
 
+    @app.post(f"{prefix}/session/clear")
+    async def clear_session(session_id: str = Body(..., embed=True)):
+        try:
+            reset_user_session(session_id)
+        except Exception as e:
+            print(f"Session clear failed: {e}")
+
+        return {"status": "success", "session_id": session_id}

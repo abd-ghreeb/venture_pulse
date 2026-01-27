@@ -49,8 +49,10 @@ const AISearchHub = ({ onResults, onClear }: AISearchHubProps) => {
     };
 
     const handleClear = () => {
+        apiClient.clearSession("test");
         setQuery('');
         setSummary(null);
+
         onClear(); // Tell parent to reset to full list
     };
 

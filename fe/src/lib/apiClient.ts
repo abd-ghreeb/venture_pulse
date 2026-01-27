@@ -166,6 +166,16 @@ class ApiClient {
     });
   }
 
+  clearSession(sessionId: string) {
+    return this.request<{
+      status: string;
+      session_id: string;
+    }>('/session/clear', {
+      method: "POST",
+      body: JSON.stringify({ session_id: sessionId }),
+    });
+  }
+
 }
 
 export const apiClient = new ApiClient();

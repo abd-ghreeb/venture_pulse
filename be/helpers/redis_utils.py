@@ -4,6 +4,9 @@ from config.config import Settings
 from typing import Any, Dict
 import json
 from helpers.json_utils import json_serial
+from helpers.logging import setup_logger
+
+logger = setup_logger("redis_utils.py")
 
 # Redis configuration
 redis_client = redis.Redis(host=Settings.REDIS_HOST, port=Settings.REDIS_PORT, decode_responses=True)
@@ -47,12 +50,21 @@ def get_user_session(session_id: str):
     if redis_client:
         try:
             state = redis_client.get(session_id)
-            return json.loads(state) if state else {"session_id": session_id, "cart": [], "customer_info": {}}
+            return json.loads(state) if state else {}
         except Exception as e:
-            pass
+            logger.error(f"get_user_session error: {e}")
 
-    return SESSION_STORE.get(session_id, {"session_id": session_id, "cart": [], "customer_info": {}})
+    return SESSION_STORE.get(session_id, {})
 
+def reset_user_session(session_id: str="test"):
+    if redis_client:
+        try:
+            delete_redis(session_id)
+        except Exception as e:
+            logger.error(f"failed to reset redis session error: {e}")
+
+    SESSION_STORE[session_id] = {}
+    return "success"
 
 def save_user_session(session_id: str, state: dict, expire_seconds: int = 86400):
     """ default ttl is one day """
