@@ -1,0 +1,75 @@
+services:
+  vp_be:
+    build:
+      context: ./venture_pulse_be
+      dockerfile: Dockerfile
+    image: vp_be
+    container_name: vp_be
+    ports:
+      - "8880:8000"
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ${ENV_FILE:-.env}
+    networks:
+      - vp_network
+    volumes:
+      - ./venture_pulse_be:/app
+    restart: always
+
+  vp_fe:
+    build:
+      context: ./venture-pulse
+      dockerfile: Dockerfile
+    image: vp_fe
+    container_name: vp_fe
+    ports:
+      - "8081:80"
+    volumes:
+      - ./venture-pulse:/app   # only mount frontend folder
+    working_dir: /app
+    environment:
+      - NEXT_PUBLIC_API_URL=https://localhost:8000
+    depends_on:
+      - vp_be
+    networks:
+      - vp_network
+    command: npm run dev
+
+  db:
+    image: postgres:15
+    container_name: vp_db
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - vp_network 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - vp_network
+
+networks:
+  vp_network:
+    driver: bridge
+volumes:
+  db-data:
+    driver: local
+  redis-data:
+    driver: local

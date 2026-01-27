@@ -1,0 +1,45 @@
+redis==7.1.0
+
+# FastAPI framework
+fastapi==0.128.0
+
+# ASGI server
+uvicorn[standard]==0.29.0
+
+# WebSockets support
+websockets==13.0.0
+
+# LangChain for LLM interaction
+langchain==1.2.4
+langchain-text-splitters==1.1.0
+langchain-openai==1.1.7
+langchain-community==0.4.1
+langchain-anthropic==1.3.1
+langchain-google-genai==4.2.0
+
+# OpenAI LLM
+openai==2.15.0
+
+# Hugging Face Hub integration
+huggingface_hub==0.23.1
+
+pydantic==2.9.2
+
+# Logging helpers
+loguru==0.7.2
+
+# Optional: for loading env vars from .env files
+python-dotenv==1.0.1
+
+
+python-multipart==0.0.20
+httpx==0.28.1
+sqlmodel
+alembic
+psycopg2-binary
+python-jose[cryptography]
+requests
+sqlalchemy
+langgraph
+passlib
+celery==5.5.3

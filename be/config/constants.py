@@ -1,0 +1,25 @@
+# LLM Providers
+OPENAI = "openai"
+ANTHROPIC = "anthropic"
+MISTRAL = "mistral"
+LOCAL = "local"
+
+# LLM Model Names
+DEFAULT_OPENAI_MODEL = "gpt-5-nano"
+DEFAULT_ANTHROPIC_MODEL = "claude-3-opus-20240229"
+DEFAULT_MISTRAL_MODEL = "mistral-medium"
+DEFAULT_LOCAL_MODEL = "local-llama"
+
+CHAT_HISTORY_SUMMARIZATION_MODEL_PROVIDER = "openai"
+CHAT_HISTORY_SUMMARIZATION_MODEL = "gpt-5-nano"
+
+# Supported LLMs dict
+LLM_MODELS = {
+    OPENAI: [DEFAULT_OPENAI_MODEL, "gpt-5-nano"],
+    ANTHROPIC: [DEFAULT_ANTHROPIC_MODEL],
+    MISTRAL: [DEFAULT_MISTRAL_MODEL],
+    LOCAL: [DEFAULT_LOCAL_MODEL]
+}
+
+# Logs
+LOGS_FILEPATH = "logs.txt"

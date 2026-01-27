@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Venture Pulse Design System - Linear/Vercel inspired dark enterprise dashboard */
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 6%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 6%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 185 85% 55%;
+    --primary-foreground: 240 10% 3.9%;
+
+    --secondary: 240 5% 14%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 5% 18%;
+    --muted-foreground: 240 5% 55%;
+
+    --accent: 185 85% 55%;
+    --accent-foreground: 240 10% 3.9%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --success: 142 76% 45%;
+    --success-foreground: 0 0% 98%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 240 10% 3.9%;
+
+    --border: 240 5% 16%;
+    --input: 240 5% 16%;
+    --ring: 185 85% 55%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 240 10% 5%;
+    --sidebar-foreground: 240 5% 65%;
+    --sidebar-primary: 185 85% 55%;
+    --sidebar-primary-foreground: 240 10% 3.9%;
+    --sidebar-accent: 240 5% 12%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 5% 12%;
+    --sidebar-ring: 185 85% 55%;
+
+    /* Custom design tokens */
+    --gradient-glow: linear-gradient(135deg, hsl(185 85% 55% / 0.15), hsl(200 85% 60% / 0.05));
+    --gradient-card: linear-gradient(180deg, hsl(240 10% 8%) 0%, hsl(240 10% 5%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(185 85% 55%), hsl(200 85% 60%));
+    --shadow-glow: 0 0 40px hsl(185 85% 55% / 0.15);
+    --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.3);
+  }
+
+  .light {
+    --background: 0 0% 98%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --primary: 185 85% 40%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 10% 3.9%;
+
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 5% 45%;
+
+    --accent: 185 85% 40%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 240 10% 3.9%;
+
+    --border: 240 5% 90%;
+    --input: 240 5% 90%;
+    --ring: 185 85% 40%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5% 35%;
+    --sidebar-primary: 185 85% 40%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 5% 96%;
+    --sidebar-accent-foreground: 240 10% 3.9%;
+    --sidebar-border: 240 5% 90%;
+    --sidebar-ring: 185 85% 40%;
+
+    --gradient-glow: linear-gradient(135deg, hsl(185 85% 40% / 0.1), hsl(200 85% 50% / 0.05));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(240 5% 98%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(185 85% 40%), hsl(200 85% 50%));
+    --shadow-glow: 0 0 40px hsl(185 85% 40% / 0.1);
+    --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.08);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-card/80 backdrop-blur-xl border border-border/50;
+  }
+
+  .glass-badge {
+    @apply backdrop-blur-md border shadow-lg;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--background) / 0.6) 0%,
+      hsl(var(--background) / 0.3) 100%
+    );
+  }
+
+  .glass-badge-success {
+    @apply glass-badge;
+    background: linear-gradient(
+      135deg,
+      hsl(142 76% 45% / 0.25) 0%,
+      hsl(142 76% 45% / 0.1) 100%
+    );
+    border-color: hsl(142 76% 45% / 0.4);
+    color: hsl(142 76% 55%);
+    box-shadow: 0 4px 16px hsl(142 76% 45% / 0.15), inset 0 1px 0 hsl(0 0% 100% / 0.1);
+  }
+
+  .glass-badge-warning {
+    @apply glass-badge;
+    background: linear-gradient(
+      135deg,
+      hsl(38 92% 50% / 0.25) 0%,
+      hsl(38 92% 50% / 0.1) 100%
+    );
+    border-color: hsl(38 92% 50% / 0.4);
+    color: hsl(38 92% 60%);
+    box-shadow: 0 4px 16px hsl(38 92% 50% / 0.15), inset 0 1px 0 hsl(0 0% 100% / 0.1);
+  }
+
+  .glass-badge-critical {
+    @apply glass-badge;
+    background: linear-gradient(
+      135deg,
+      hsl(0 72% 51% / 0.25) 0%,
+      hsl(0 72% 51% / 0.1) 100%
+    );
+    border-color: hsl(0 72% 51% / 0.4);
+    color: hsl(0 72% 65%);
+    box-shadow: 0 4px 16px hsl(0 72% 51% / 0.2), inset 0 1px 0 hsl(0 0% 100% / 0.1);
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-accent);
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
