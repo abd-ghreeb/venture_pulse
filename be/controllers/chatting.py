@@ -69,7 +69,6 @@ def agent_chatting(session_id, msg, session):
     for i in range(3):  
         # Pass the cumulative history which now includes previous ToolMessages
         active_messages = get_active_context(chat_summary, history, session_state, sys_content)
-        logger.info(f"history= {active_messages}")
         response = LLM_WITH_TOOLS.invoke(active_messages)
         
         # We only append the AI's response to history here
@@ -102,7 +101,6 @@ def agent_chatting(session_id, msg, session):
         # 4. Tool Handling
         for tool_call in response.tool_calls:
             handler = tool_map.get(tool_call["name"])
-            logger.info(f'calling tool {tool_call["name"]} with args: {tool_call["args"]}')
             if handler:
                 tool_output = handler(state=session_state, payload=tool_call["args"], db=session)
                 

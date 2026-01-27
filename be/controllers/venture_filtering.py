@@ -113,7 +113,6 @@ def get_ventures_by_metrics(state: dict, payload: dict, db: Session):
         order_clauses.append(desc(Venture.updated_at))
 
     statement = statement.order_by(*order_clauses)
-    logger.info(f"querying database with statament= {statement}")
     # 5. Execution
     results = db.exec(statement.limit(limit)).all()
     
