@@ -1,0 +1,52 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    # Only trigger if code in these directories changes
+    paths:
+      - 'be/**'
+      - 'fe/**'
+      - 'docker-compose.venture-pulse.yml'
+      - '.github/workflows/**'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build & Push Backend
+      - name: Build and push Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./be
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/venture-pulse-be:latest
+
+      # Build & Push Frontend
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./fe
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/venture-pulse-fe:latest
+          build-args: |
+            # Even if you pull manually, build-args are baked into the image 
+            # at build time. Keep this secret if you want the URL in the FE.
+            VITE_API_URL=${{ secrets.VITE_API_URL }}
+
+      - name: Summary
+        run: echo "🚀 Images successfully pushed to GHCR. Ready for manual pull on server."
