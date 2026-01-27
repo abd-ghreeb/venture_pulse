@@ -23,9 +23,10 @@ app = FastAPI(
     )
 
 origins = [
-    "https://vp.rutayba.com/", # production frontend
-    "http://localhost:8082",   # local frontend
-    "http://127.0.0.1:8082",   # sometimes dev uses this
+    "https://vp.rutayba.com", # production frontend
+    "http://vp.rutayba.com",   # Production HTTP (if not forced to HTTPS)
+    "http://localhost:8081",   # local frontend
+    "http://127.0.0.1:8081",   # sometimes dev uses this
     "http://localhost:8880",   # local backend itself
     "http://127.0.0.1:8880",   # local backend itself
 ]
