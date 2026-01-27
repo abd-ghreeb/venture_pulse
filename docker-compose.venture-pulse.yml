@@ -1,9 +1,9 @@
 services:
   vp_be:
     build:
-      context: ./venture_pulse_be
+      context: ./be
       dockerfile: Dockerfile
-    image: vp_be
+    image: vp_be # on server use: ghcr.io/abd-ghreeb/venture-pulse-be:latest
     container_name: vp_be
     ports:
       - "8880:8000"
@@ -15,19 +15,19 @@ services:
     networks:
       - vp_network
     volumes:
-      - ./venture_pulse_be:/app
+      - ./be:/app
     restart: always
 
   vp_fe:
     build:
-      context: ./venture-pulse
+      context: ./fe
       dockerfile: Dockerfile
-    image: vp_fe
+    image: vp_fe # on server use: ghcr.io/abd-ghreeb/venture-pulse-fe:latest
     container_name: vp_fe
     ports:
       - "8081:80"
     volumes:
-      - ./venture-pulse:/app   # only mount frontend folder
+      - ./fe:/app   # only mount frontend folder
     working_dir: /app
     environment:
       - NEXT_PUBLIC_API_URL=https://localhost:8000

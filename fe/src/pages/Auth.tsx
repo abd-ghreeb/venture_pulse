@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sparkles, Lock, Mail, ArrowRight, ShieldCheck, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils.ts";
+import { cn } from "@/lib/utils";
 import { useAuth } from '@/hooks/use-auth';
 
 
