@@ -17,4 +17,4 @@ ENV PYTHONUNBUFFERED=1
 # Change this to your actual app port (usually 8000 or 8880)
 EXPOSE 8880
 
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8880"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8880", "--reload"]
