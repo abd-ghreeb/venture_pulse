@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, Pressable, RefreshControl, StyleSheet } from "react-native";
+import { View, Text, FlatList, Pressable, RefreshControl, StyleSheet, SafeAreaView, StatusBar } from "react-native";
 import { useRouter } from "expo-router";
-import { ChevronRight } from "lucide-react-native";
+import { ChevronRight, LayoutGrid } from "lucide-react-native";
 
 // Shared Logic & Components
 import { Venture } from "../src/types/Venture";
@@ -13,7 +13,6 @@ export default function DashboardScreen() {
   const { ventures, isLoading, refetch } = useVentureData();
   const [displayVentures, setDisplayVentures] = useState<Venture[]>([]);
 
-  // Keep display list in sync with fetched data
   useEffect(() => {
     if (ventures) setDisplayVentures(ventures);
   }, [ventures]);
@@ -22,29 +21,32 @@ export default function DashboardScreen() {
     <Pressable 
       style={styles.card}
       onPress={() => {
-        // Expo Router uses the filename in the app folder
         router.push({
           pathname: "/VentureDetails",
-          params: { id: item.id } // Pass the ID to the details page
+          params: { id: item.id } 
         });
       }}
     >
-      <View style={styles.cardContent}>
-        <View>
+      <View style={styles.cardHeader}>
+        <View style={styles.nameContainer}>
           <Text style={styles.ventureName}>{item.name}</Text>
-          <Text style={styles.venturePod}>{item.pod} • {item.stage}</Text>
+          <View style={styles.tag}>
+            <Text style={styles.tagText}>{item.stage}</Text>
+          </View>
         </View>
-        <ChevronRight size={20} color="#CCC" />
+        <ChevronRight size={18} color="#9CA3AF" />
       </View>
       
-      <View style={styles.metricsRow}>
+      <Text style={styles.venturePod}>{item.pod} Pod</Text>
+      
+      <View style={styles.metricsGrid}>
         <View style={styles.metric}>
-          <Text style={styles.metricLabel}>Burn</Text>
+          <Text style={styles.metricLabel}>Monthly Burn</Text>
           <Text style={styles.metricValue}>${item.burn_rate_monthly.toLocaleString()}</Text>
         </View>
         <View style={styles.metric}>
           <Text style={styles.metricLabel}>Runway</Text>
-          <Text style={[styles.metricValue, item.runway_months < 6 ? {color: '#ef4444'} : {}]}>
+          <Text style={[styles.metricValue, item.runway_months < 6 ? {color: '#EF4444'} : {color: '#10B981'}]}>
             {item.runway_months}mo
           </Text>
         </View>
@@ -53,58 +55,126 @@ export default function DashboardScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      {/* AI Command Tool */}
-      <View style={styles.aiContainer}>
-        <AICommandInput 
-          onResults={(filtered: Venture[]) => setDisplayVentures(filtered)}
-          onClear={() => setDisplayVentures(ventures)}
-        />
-      </View>
-
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      
       <FlatList
         data={displayVentures}
         keyExtractor={(item) => item.id}
         renderItem={renderVentureItem}
+        // This makes the AI tool scrollable with the list
+        ListHeaderComponent={
+          <View style={styles.headerSection}>
+            <View style={styles.titleRow}>
+              <Text style={styles.title}>Venture Pulse</Text>
+              <LayoutGrid size={20} color="#6B7280" />
+            </View>
+            <AICommandInput 
+              onResults={(filtered: Venture[]) => setDisplayVentures(filtered)}
+              onClear={() => setDisplayVentures(ventures)}
+            />
+            <Text style={styles.listSubtitle}>
+              {displayVentures.length} Ventures Active
+            </Text>
+          </View>
+        }
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+          <RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor="#2563EB" />
         }
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No ventures found matching your query.</Text>
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No ventures found.</Text>
+          </View>
         }
-        contentContainerStyle={{ padding: 16 }}
+        contentContainerStyle={{ paddingBottom: 40 }}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F9FAFB" },
-  aiContainer: { 
-    padding: 16, 
-    backgroundColor: '#FFF', 
-    borderBottomWidth: 1, 
-    borderBottomColor: '#E5E7EB',
-    paddingTop: 60 // Pushes input below the notch if not using SafeAreaView
+  headerSection: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
+    backgroundColor: '#F9FAFB',
+  },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: "#111827",
+    letterSpacing: -0.5,
+  },
+  listSubtitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#9CA3AF',
+    textTransform: 'uppercase',
+    marginTop: 24,
+    marginBottom: 8,
+    letterSpacing: 1,
   },
   card: { 
     backgroundColor: "#FFF", 
-    borderRadius: 12, 
-    padding: 16, 
-    marginBottom: 12, 
+    borderRadius: 16, 
+    padding: 20, 
+    marginHorizontal: 20,
+    marginBottom: 16, 
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#F3F4F6',
+    // Premium soft shadow
     shadowColor: '#000', 
-    shadowOffset: { width: 0, height: 1 }, 
-    shadowOpacity: 0.05, 
-    shadowRadius: 2 
+    shadowOffset: { width: 0, height: 4 }, 
+    shadowOpacity: 0.03, 
+    shadowRadius: 10,
+    elevation: 2,
   },
-  cardContent: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  cardHeader: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'flex-start',
+  },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flex: 1,
+  },
   ventureName: { fontSize: 18, fontWeight: "700", color: "#111827" },
-  venturePod: { fontSize: 14, color: "#6B7280" },
-  metricsRow: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: '#F3F4F6', paddingTop: 12 },
-  metric: { marginRight: 24 },
-  metricLabel: { fontSize: 11, color: "#9CA3AF", textTransform: 'uppercase', fontWeight: '600' },
-  metricValue: { fontSize: 15, fontWeight: "600", color: "#374151" },
-  emptyText: { textAlign: 'center', marginTop: 40, color: '#9CA3AF' }
+  tag: {
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  tagText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#6B7280',
+  },
+  venturePod: { 
+    fontSize: 14, 
+    color: "#6B7280", 
+    marginTop: 2,
+    marginBottom: 16 
+  },
+  metricsGrid: { 
+    flexDirection: 'row', 
+    borderTopWidth: 1, 
+    borderTopColor: '#F9FAFB', 
+    paddingTop: 16,
+    gap: 32 
+  },
+  metric: { flex: 0 },
+  metricLabel: { fontSize: 11, color: "#9CA3AF", fontWeight: '500', marginBottom: 4 },
+  metricValue: { fontSize: 16, fontWeight: "700", color: "#1F2937" },
+  emptyContainer: { padding: 40, alignItems: 'center' },
+  emptyText: { color: '#9CA3AF', fontSize: 15 }
 });
