@@ -4,10 +4,13 @@ from models.venture import Venture
 from models.db import get_session
 from schemas import DashboardStatsResponse
 from sqlalchemy import desc
+from helpers.authentication_utils import get_current_user
 
 def stats_api(app: FastAPI, prefix: str = "/api/v1"):
     @app.get(f"{prefix}/dashboard-stats", response_model=DashboardStatsResponse)
-    async def get_dashboard_stats(session: Session = Depends(get_session)):
+    async def get_dashboard_stats(session: Session = Depends(get_session),
+        # current_user: dict = Depends(get_current_user)
+        ):
         # 1. Fetch Aggregated Totals and Averages using the new Venture columns
         stats_statement = select(
             func.sum(Venture.burn_rate_monthly).label("total_burn"),

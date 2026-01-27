@@ -42,7 +42,7 @@ def query_api(app: FastAPI, prefix: str = "/api/v1"):
     async def ai_agent_query(
         session_id: str = Body("test"),
         msg: str = Body(...),       
-        current_user: dict = Depends(get_current_user),
+        # current_user: dict = Depends(get_current_user),
         session: Session = Depends(get_session)):
 
       response = agent_chatting(

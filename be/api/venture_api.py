@@ -5,12 +5,16 @@ from typing import List, Optional
 from models.venture import Venture
 
 from models.db import get_session
-from schemas import VenturePulseResponse 
+from schemas import VenturePulseResponse
+from helpers.authentication_utils import get_current_user 
 
 def venture_api(app: FastAPI, prefix: str = "/api/v1/ventures"):
     
     @app.get(f"{prefix}", response_model=List[VenturePulseResponse])
-    async def get_all_ventures(session: Session = Depends(get_session)):
+    async def get_all_ventures(
+        session: Session = Depends(get_session),
+        # current_user: dict = Depends(get_current_user)
+        ):
         """
         Fetches all ventures using denormalized columns for high performance.
         """
@@ -25,7 +29,11 @@ def venture_api(app: FastAPI, prefix: str = "/api/v1/ventures"):
         return [VenturePulseResponse.model_validate(v) for v in results]
 
     @app.get(f"{prefix}/{{venture_id}}", response_model=VenturePulseResponse)
-    async def get_venture_details(venture_id: str, session: Session = Depends(get_session)):
+    async def get_venture_details(
+        venture_id: str, 
+        session: Session = Depends(get_session),
+        # current_user: dict = Depends(get_current_user)
+        ):
         """
         Fetches full details for a single venture, including history for the sparkline.
         """
