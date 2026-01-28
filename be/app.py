@@ -5,6 +5,7 @@ from api.query_api import query_api
 from api.auth_api import auth_api
 from api.stats_api import stats_api
 from api.venture_api import venture_api
+from api.voice_api import voice_api
 from helpers.exception_handler import ExceptionHandler
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -13,6 +14,8 @@ import os
 from config.config import Settings
 
 import logging
+
+
 
 logger = logging.getLogger("app")
 router = APIRouter()
@@ -25,6 +28,8 @@ app = FastAPI(
 origins = [
     "https://vp.rutayba.com", # production frontend
     "http://vp.rutayba.com",   # Production HTTP (if not forced to HTTPS)
+    "http://localhost:8085",   # local frontend
+    "http://127.0.0.1:8085",   # sometimes dev uses this
     "http://localhost:8081",   # local frontend
     "http://127.0.0.1:8081",   # sometimes dev uses this
     "http://localhost:8880",   # local backend itself
@@ -45,6 +50,7 @@ query_api(app)
 auth_api(app)
 venture_api(app)
 stats_api(app)
+voice_api(app)
 
 
 # Register exception handlers

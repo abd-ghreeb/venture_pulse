@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet, Text } from 'react-native';
-import { Send, X, Sparkles, MessageSquare } from 'lucide-react-native';
+import { Send, X, Sparkles, Mic, MicOff } from 'lucide-react-native';
+import { Audio } from 'expo-av';
 
 interface Props {
   onResults: (ventures: any[]) => void;
@@ -10,7 +11,62 @@ interface Props {
 export const AICommandInput = ({ onResults, onClear }: Props) => {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
+  
+  // Request permissions on mount
+  useEffect(() => {
+    Audio.requestPermissionsAsync();
+  }, []);
+
+  async function startRecording() {
+    try {
+      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+      const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+      setRecording(recording);
+      setIsRecording(true);
+    } catch (err) {
+      console.error('Failed to start recording', err);
+    }
+  }
+
+  async function stopRecording() {
+    if (!recording) return;
+    setIsRecording(false);
+    setLoading(true);
+    
+    await recording.stopAndUnloadAsync();
+    const uri = recording.getURI(); 
+    setRecording(null);
+
+    if (uri) {
+      // Send this URI to your backend's /transcribe endpoint
+      await uploadAudio(uri);
+    }
+  }
+
+  const uploadAudio = async (uri: string) => {
+    const formData = new FormData();
+    // @ts-ignore
+    formData.append('file', { uri, type: 'audio/m4a', name: 'speech.m4a' });
+
+    try {
+      const response = await fetch('https://vp.rutayba.com/api/v1/voice-query', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const result = await response.json();
+      setQuery(result.text); // Fill the input with the transcription
+      // Automatically trigger the search after transcription
+      handleSearch(result.text); 
+    } catch (error) {
+      console.error("Transcription failed", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = async () => {
     if (!query.trim()) return;
@@ -44,21 +100,20 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
     onClear();
   };
 
+
   return (
     <View style={styles.wrapper}>
-      {/* Search Bar Container */}
       <View style={styles.searchContainer}>
-        <View style={styles.iconPrefix}>
-          {loading ? (
-            <ActivityIndicator size="small" color="#2563EB" />
-          ) : (
-            <Sparkles size={18} color="#2563EB" />
-          )}
-        </View>
-        
+        <TouchableOpacity 
+          onPress={isRecording ? stopRecording : startRecording}
+          style={[styles.micButton, isRecording && styles.micActive]}
+        >
+          {isRecording ? <MicOff size={18} color="#EF4444" /> : <Mic size={18} color="#2563EB" />}
+        </TouchableOpacity>
+
         <TextInput
           style={styles.input}
-          placeholder="Ask Mattar AI..."
+          placeholder={isRecording ? "Listening..." : "Ask Mattar AI..."}
           placeholderTextColor="#9CA3AF"
           value={query}
           onChangeText={setQuery}
@@ -98,9 +153,104 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
           <Text style={styles.summaryText}>{summary}</Text>
         </View>
       )}
-    </View>
+      </View>
   );
 };
+
+// export const AICommandInput = ({ onResults, onClear }: Props) => {
+//   const [query, setQuery] = useState('');
+//   const [loading, setLoading] = useState(false);
+//   const [summary, setSummary] = useState<string | null>(null);
+
+//   const handleSearch = async () => {
+//     if (!query.trim()) return;
+    
+//     setLoading(true);
+//     try {
+//       const response = await fetch('https://vp.rutayba.com/api/v1/query', {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({ msg: query }),
+//       });
+  
+//       if (!response.ok) throw new Error(`Error: ${response.status}`);
+  
+//       const result = await response.json();
+  
+//       if (result.data?.ventures) {
+//         setSummary(result.answer); // Capture the AI text
+//         onResults(result.data.ventures);
+//       }
+//     } catch (error: any) {
+//       console.error("AI Query failed:", error.message);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleReset = () => {
+//     setQuery('');
+//     setSummary(null);
+//     onClear();
+//   };
+
+//   return (
+//     <View style={styles.wrapper}>
+//       {/* Search Bar Container */}
+//       <View style={styles.searchContainer}>
+//         <View style={styles.iconPrefix}>
+//           {loading ? (
+//             <ActivityIndicator size="small" color="#2563EB" />
+//           ) : (
+//             <Sparkles size={18} color="#2563EB" />
+//           )}
+//         </View>
+        
+//         <TextInput
+//           style={styles.input}
+//           placeholder="Ask Mattar AI..."
+//           placeholderTextColor="#9CA3AF"
+//           value={query}
+//           onChangeText={setQuery}
+//           onSubmitEditing={handleSearch}
+//           returnKeyType="send"
+//         />
+        
+//         <View style={styles.buttonGroup}>
+//           {query.length > 0 && (
+//             <TouchableOpacity onPress={handleReset} style={styles.iconButton}>
+//               <X size={18} color="#6B7280" />
+//             </TouchableOpacity>
+//           )}
+          
+//           <TouchableOpacity 
+//             onPress={handleSearch} 
+//             disabled={loading}
+//             style={[styles.sendButton, loading && { opacity: 0.5 }]}
+//           >
+//             <Send size={16} color="#FFF" />
+//           </TouchableOpacity>
+//         </View>
+//       </View>
+
+//       {/* AI Summary Card (The "Briefing" Box) */}
+//       {summary && (
+//         <View style={styles.summaryCard}>
+//           <View style={styles.summaryHeader}>
+//             <View style={styles.badge}>
+//               <Sparkles size={12} color="#2563EB" style={{ marginRight: 4 }} />
+//               <Text style={styles.badgeText}>MATTAR ANALYSIS</Text>
+//             </View>
+//             <TouchableOpacity onPress={handleReset}>
+//               <X size={14} color="#9CA3AF" />
+//             </TouchableOpacity>
+//           </View>
+//           <Text style={styles.summaryText}>{summary}</Text>
+//         </View>
+//       )}
+//     </View>
+//   );
+// };
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -181,5 +331,25 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: '#1E40AF',
     fontWeight: '400',
+  },
+  micButton: {
+    padding: 8,
+    borderRadius: 10,
+    backgroundColor: '#F3F4F6', // Light gray background by default
+    marginRight: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  micActive: {
+    backgroundColor: '#FEE2E2', // Soft red background when recording
+    borderColor: '#FECACA',
+    // Optional: Add a subtle shadow to make the active state pop
+    shadowColor: '#EF4444',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 2,
   },
 });
