@@ -1,13 +1,20 @@
 {
   "expo": {
-    "name": "mobile-app",
-    "slug": "mobile-app",
+    "name": "VenturePulse",
+    "slug": "venturepulse",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "mobileapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "extra": {
+      "apiUrl": "https://vp.rutayba.com/api/v1",
+      "router": {},
+      "eas": {
+        "projectId": "2793210a-aefe-4d56-8256-9d2a3998b749"
+      }
+    },
     "ios": {
       "supportsTablet": true
     },
@@ -24,6 +31,14 @@
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
+    },
+    "expo": {
+      "runtimeVersion": {
+        "policy": "appVersion"
+      },
+      "updates": {
+        "url": "https://u.expo.dev/your-project-id"
+      }
     },
     "plugins": [
       "expo-router",
@@ -43,6 +58,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "owner": "a_mattar",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2793210a-aefe-4d56-8256-9d2a3998b749"
     }
   }
 }
