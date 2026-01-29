@@ -104,12 +104,22 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
                  }),
             });
 
+            // Handle non-200 responses (like the 400 error we discussed)
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error?.message || "I encountered a processing error.");
+            }
+
             const result = await response.json();
             if (result.data?.ventures) {
                 setSummary(result.answer || "Analysis complete.");
                 onResults(result.data.ventures); // Update list in parent
             }
         } catch (error: any) {
+            // Show a user-friendly message in the AI Insight box
+            const friendlyMessage = "### ⚠️ Analysis Interrupted\n" + 
+                (error.message || "This query is a bit too complex for me right now. Please try rephrasing!");
+            setSummary(friendlyMessage);
             console.error("AI Query Error:", error.message);
         } finally {
             setLoading(false);
