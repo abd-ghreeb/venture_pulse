@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Sparkles, RefreshCw, X, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useToast } from "@/hooks/use-toast";
@@ -23,25 +24,25 @@ const AISearchHub = ({ onResults, onClear }: AISearchHubProps) => {
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!query.trim()) return;
-    
+
         setIsLoading(true);
         try {
             const result = await apiClient.queryAgent(query);
-    
+
             // Set local summary for the "Briefing" box
             setSummary(result.answer);
-    
+
             // Send the structured data up to the Index page
             onResults(
                 result.data.ventures,
                 result.answer
             );
-    
+
         } catch (err: any) {
-            toast({ 
-                title: "Agent Offline", 
-                description: "The AI analyst could not be reached.", 
-                variant: "destructive" 
+            toast({
+                title: "Agent Offline",
+                description: "The AI analyst could not be reached.",
+                variant: "destructive"
             });
         } finally {
             setIsLoading(false);
@@ -68,9 +69,9 @@ const AISearchHub = ({ onResults, onClear }: AISearchHubProps) => {
                     placeholder="Ask Mattar: 'Show me ventures in HealthTech'..."
                     className="pl-12 h-14 bg-card border-primary/10 shadow-xl text-lg rounded-xl focus-visible:ring-primary/20"
                 />
-                <Button 
-                    type="submit" 
-                    className="absolute right-2 top-1/2 -translate-y-1/2" 
+                <Button
+                    type="submit"
+                    className="absolute right-2 top-1/2 -translate-y-1/2"
                     disabled={isLoading}
                 >
                     <ArrowRight className="w-4 h-4" />
@@ -89,9 +90,18 @@ const AISearchHub = ({ onResults, onClear }: AISearchHubProps) => {
                                 <X className="w-4 h-4" />
                             </Button>
                         </div>
-                        <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                            {summary}
-                        </p>
+
+                        {/* Using ReactMarkdown to parse Mattar's formatting */}
+                        <div className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 prose prose-slate dark:prose-invert max-w-none">
+                            <ReactMarkdown
+                                components={{
+                                    p: ({ node, ...props }) => <span {...props} />, // Prevents double spacing
+                                    strong: ({ node, ...props }) => <b className="font-bold text-primary" {...props} />
+                                }}
+                            >
+                                {summary}
+                            </ReactMarkdown>
+                        </div>
                     </Card>
                 </motion.div>
             )}

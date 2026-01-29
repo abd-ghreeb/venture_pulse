@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Markdown from 'react-native-markdown-display';
 import { View, TextInput, TouchableOpacity, ActivityIndicator, StyleSheet, Text, Platform } from 'react-native';
 import { Send, X, Sparkles, Mic, MicOff } from 'lucide-react-native';
 import { Audio } from 'expo-av';
@@ -22,9 +23,9 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
 
     async function startRecording() {
         try {
-            await Audio.setAudioModeAsync({ 
-                allowsRecordingIOS: true, 
-                playsInSilentModeIOS: true 
+            await Audio.setAudioModeAsync({
+                allowsRecordingIOS: true,
+                playsInSilentModeIOS: true
             });
             const { recording } = await Audio.Recording.createAsync(
                 Audio.RecordingOptionsPresets.HIGH_QUALITY
@@ -56,10 +57,10 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
     const uploadAudio = async (uri: string) => {
         const formData = new FormData();
         // @ts-ignore
-        formData.append('file', { 
-            uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri, 
-            type: 'audio/m4a', 
-            name: 'speech.m4a' 
+        formData.append('file', {
+            uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
+            type: 'audio/m4a',
+            name: 'speech.m4a'
         });
 
         try {
@@ -68,7 +69,7 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
                 body: formData,
             });
             const result = await response.json();
-            
+
             if (result.text) {
                 setQuery(result.text);
                 setTranscribing(false);
@@ -175,7 +176,11 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
                             <X size={14} color="#9CA3AF" />
                         </TouchableOpacity>
                     </View>
-                    <Text style={styles.summaryText}>{summary}</Text>
+
+                    {/* Markdown Renderer */}
+                    <Markdown style={markdownStyles}>
+                        {summary}
+                    </Markdown>
                 </View>
             )}
         </View>
@@ -183,17 +188,17 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
 };
 
 const styles = StyleSheet.create({
-    wrapper: { 
-        width: '100%', 
+    wrapper: {
+        width: '100%',
         marginBottom: 12,
         // Fix for top margin if header is hidden
-        paddingTop: Platform.OS === 'ios' ? 10 : 0 
+        paddingTop: Platform.OS === 'ios' ? 10 : 0
     },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#FFFFFF',
-        borderRadius: 24, 
+        borderRadius: 24,
         paddingHorizontal: 16,
         paddingVertical: 4,
         borderWidth: 1,
@@ -210,17 +215,17 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFF1F2',
     },
     iconPrefix: { marginRight: 8 },
-    input: { 
-        flex: 1, 
-        height: 50, 
-        fontSize: 16, 
+    input: {
+        flex: 1,
+        height: 50,
+        fontSize: 16,
         color: '#111827',
-        fontWeight: '500' 
+        fontWeight: '500'
     },
-    buttonGroup: { 
-        flexDirection: 'row', 
-        alignItems: 'center', 
-        gap: 6 
+    buttonGroup: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6
     },
     micButton: {
         padding: 8,
