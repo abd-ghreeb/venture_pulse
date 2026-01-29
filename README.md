@@ -1,7 +1,24 @@
-# 🚀 Venture Pulse
+# Venture Pulse
 **Portfolio Monitoring & Venture Analytics Dashboard**
 
 Venture Pulse is a full-stack internal tool designed for venture studios to track portfolio health, monthly burn rates, and pilot customer progress. It features an AI-powered analyst to query the portfolio using natural language.
+
+## 🌧️ Meet Mattar: The AI Analyst
+
+The centerpiece of this prototype is **Mattar**, a custom AI analyst integrated directly into the dashboard.
+
+Named after my last name (**Mattar**, meaning **"Rain"** in Arabic), this agent embodies the principle of nourishing an ecosystem. Just as rain brings clarity and growth to a landscape, Mattar flows through complex data to provide the Studio team with clear, actionable insights.
+
+### Why Mattar is Different
+While many AI implementations rely on heavy, "black-box" frameworks like LangChain, Mattar was built from the ground up as a **Manual ReAct (Reasoning + Acting) Agent**. This custom approach provides several key advantages for a founding-stage platform:
+
+* **State-Aware Analysis:** Unlike basic chatbots, Mattar is aware of the dashboard's state. When you ask a question, Mattar doesn't just talk—it **acts**, filtering the venture list and updating the UI to match its findings.
+* **Persistent Context:** Mattar maintains a memory of your current session. You can ask follow-up questions, and the agent will understand the context of your previous analysis.
+* **Lightweight & LLM-Agnostic:** By avoiding heavy abstractions, the agent is incredibly fast and can be toggled between OpenAI, Anthropic, or local models via a single configuration change.
+
+
+
+> *"Mattar isn't just an interface; it's designed to be the cognitive rain that turns a desert of ventures complex data into a garden of insights."*
 
 ---
 
