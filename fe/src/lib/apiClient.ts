@@ -156,15 +156,15 @@ class ApiClient {
   }
   
   // ---------------- AI filter agent ----------------
-  async queryAgent(msg: string) {
+  async queryAgent(msg: string, sessionId: string="test") { 
     return this.request<{
       answer: string;
       data: { ventures: Venture[]; venture_ids: string[];  };
     }>('/query', { 
       method: "POST",
-      body: JSON.stringify({ msg }),
+      body: JSON.stringify({ msg, session_id: sessionId }), 
     });
-  }
+}
 
   clearSession(sessionId: string) {
     return this.request<{

@@ -10,6 +10,10 @@ interface Props {
 }
 
 export const AICommandInput = ({ onResults, onClear }: Props) => {
+    // 1. New State for Dynamic Session ID
+    const generateSessionId = () => `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const [sessionId, setSessionId] = useState(generateSessionId());
+
     const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [transcribing, setTranscribing] = useState(false);
@@ -90,7 +94,10 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
             const response = await fetch('https://vp.rutayba.com/api/v1/query', {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ msg: finalQuery }),
+                body: JSON.stringify({ 
+                    msg: finalQuery,
+                    session_id: sessionId
+                 }),
             });
 
             const result = await response.json();
@@ -105,11 +112,35 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
         }
     };
 
-    const handleReset = () => {
+    const handleReset = async () => {
+        // Capture old ID for the API call before we rotate it in state
+        const oldSessionId = sessionId;
+
         setQuery('');
         setSummary(null);
         setTranscribing(false);
         onClear(); // CRITICAL: This resets the list in index.tsx
+
+        // Rotate Session ID so the NEXT query is fresh
+        setSessionId(generateSessionId());
+
+        // 2. Backend Synchronization
+        try {
+            const response = await fetch('https://vp.rutayba.com/api/v1/session/clear', {
+                method: "POST", 
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ session_id: oldSessionId }), 
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to clear backend session");
+            }
+
+            console.log("Session cleared successfully");
+        } catch (error: any) {
+            console.error("Session Reset Error:", error.message);
+            // Optional: Show a toast notification to the user
+        }
     };
 
     return (
@@ -282,19 +313,19 @@ const styles = StyleSheet.create({
 
 const markdownStyles = StyleSheet.create({
     body: {
-      fontSize: 14,
-      lineHeight: 20,
-      color: '#334155',
+        fontSize: 14,
+        lineHeight: 20,
+        color: '#334155',
     },
     strong: {
-      fontWeight: '700', // Use numeric strings for fontWeight in Native TS
-      color: '#1E293B',
+        fontWeight: '700', // Use numeric strings for fontWeight in Native TS
+        color: '#1E293B',
     },
     em: {
-      fontStyle: 'italic',
+        fontStyle: 'italic',
     },
     paragraph: {
-      marginTop: 0,
-      marginBottom: 0,
+        marginTop: 0,
+        marginBottom: 0,
     },
-  });
+});

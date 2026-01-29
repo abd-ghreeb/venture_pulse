@@ -16,6 +16,11 @@ interface AISearchHubProps {
 }
 
 const AISearchHub = ({ onResults, onClear }: AISearchHubProps) => {
+    // Helper to generate a unique ID
+    const generateId = () => `web_sess_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+    
+    // State to hold the current session ID
+    const [sessionId, setSessionId] = useState(generateId());
     const [query, setQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [summary, setSummary] = useState<string | null>(null);
@@ -27,7 +32,7 @@ const AISearchHub = ({ onResults, onClear }: AISearchHubProps) => {
 
         setIsLoading(true);
         try {
-            const result = await apiClient.queryAgent(query);
+            const result = await apiClient.queryAgent(query, sessionId);
 
             // Set local summary for the "Briefing" box
             setSummary(result.answer);
@@ -49,12 +54,20 @@ const AISearchHub = ({ onResults, onClear }: AISearchHubProps) => {
         }
     };
 
-    const handleClear = () => {
-        apiClient.clearSession("test");
+    const handleClear = async () => {
+        const oldId = sessionId; // Capture for the API call
+        
+        // 1. Backend: Tell it to wipe the old session
+        // We don't 'await' this if we want the UI to feel instant
+        apiClient.clearSession(oldId).catch(console.error);
+
+        // 2. UI: Reset fields
         setQuery('');
         setSummary(null);
+        onClear();
 
-        onClear(); // Tell parent to reset to full list
+        // 3. Rotation: Generate a NEW ID for the next message
+        setSessionId(generateId());
     };
 
     return (
