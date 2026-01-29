@@ -76,7 +76,7 @@ def get_ventures_by_metrics(state: dict, payload: dict, db: Session):
     Supports single metric sorting via 'metric_type' or multi-metric via 'sort_by'.
     """
     # 1. Extraction & Parameter Normalization
-    limit = payload.get("limit", 5)
+    limit = payload.get("limit")
     health = payload.get("health")
     pod = payload.get("pod")
     
@@ -113,8 +113,11 @@ def get_ventures_by_metrics(state: dict, payload: dict, db: Session):
         order_clauses.append(desc(Venture.updated_at))
 
     statement = statement.order_by(*order_clauses)
-    # 5. Execution
-    results = db.exec(statement.limit(limit)).all()
+    # 5. Execution (Only apply limit if it is a positive integer)
+    if limit:
+        results = db.exec(statement.limit(limit)).all()
+    else:
+        results = db.exec(statement).all()
     
     # Use your previously defined helper to map to frontend-friendly camelCase
     validated_parsed_data = parse_search_results(results=results)
