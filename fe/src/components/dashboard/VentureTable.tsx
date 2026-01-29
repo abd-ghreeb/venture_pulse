@@ -82,7 +82,7 @@ const VentureTable = ({
   return (
     <div className="space-y-6">
       {/* 1. Sticky AI Command Hub */}
-      <div className="bg-background pb-4 pt-2">
+      <div className="bg-background">
         <AISearchHub
           onResults={onAIResults}
           onClear={onAIClear}

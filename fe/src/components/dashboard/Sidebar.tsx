@@ -21,7 +21,11 @@ const navigation = [
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
-const Sidebar = () => {
+interface SidebarProps {
+  className?: string;
+}
+
+const Sidebar = ({ className }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();

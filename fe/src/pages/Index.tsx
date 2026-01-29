@@ -59,10 +59,10 @@ const Index = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
-      <Sidebar />
+    <div className="flex h-screen w-full overflow-hidden bg-background">
+      <Sidebar className="h-full" />
 
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-y-auto h-full">
         <div className="p-8">
           {/* Header */}
           <div className="flex items-start justify-between mb-8">
