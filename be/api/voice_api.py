@@ -5,7 +5,7 @@ from config.config import Settings
 
 router = APIRouter()
 # 2. Instantiate the client (it will look for OPENAI_API_KEY in your env)
-client = OpenAI(api_key=Settings.OPENAI_API_KEY | os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=Settings.OPENAI_API_KEY)
 
 def voice_api(app: FastAPI, prefix: str = "/api/v1"):
 

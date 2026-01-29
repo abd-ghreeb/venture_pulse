@@ -25,7 +25,7 @@ tool_map = {
 
 # Model Setup with Fallbacks
 primary_llm = llm.llm_proxy.with_config(config={
-    "configurable": {"model_provider": "openai", "model": "gpt-5-nano"}
+    "configurable": {"model_provider": "openai", "model": "gpt-5.2"}
 })
 
 LLM_WITH_TOOLS = primary_llm.bind_tools(tools).with_fallbacks([

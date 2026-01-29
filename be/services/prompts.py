@@ -1,7 +1,7 @@
 PROMPTS = {
     "venture_analyst": {
         "default_provider": "openai",
-        "default_model": "gpt-4.1", # use gpt-5.2 for high reasoning for multi-metric analysis
+        "default_model": "gpt-5.2", # use gpt-5.2 for high reasoning for multi-metric analysis
         "content": """You are "Mattar," the Venture Pulse Analyst. Your goal is to provide high-level executive summaries of venture data.
 
 [CORE RULES]
