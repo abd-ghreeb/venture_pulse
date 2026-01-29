@@ -44,9 +44,12 @@ const Index = () => {
     }
   }, [ventures]);
 
-  // 3. AI Callback: Filters the view to ONLY what Mattar found
+  // 3. AI Callback: Filters the view to ONLY what the AI Agent found
   const handleAIResults = (aiFoundVentures: Venture[], summary: string) => {
-    setDisplayVentures(aiFoundVentures);
+    // Only update state if the list is not empty
+    if (aiFoundVentures && aiFoundVentures.length > 0) {
+      setDisplayVentures(aiFoundVentures);
+    }
   };
 
   // 4. Reset: Switches back to the master list

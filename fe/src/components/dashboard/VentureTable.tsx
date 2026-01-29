@@ -9,7 +9,6 @@ import BurnRateDisplay from '@/components/dashboard/BurnRateDisplay';
 
 interface VentureTableProps {
   ventures: Venture[];
-  // Updated to match the new AISearchHub signature
   onAIResults: (ventures: Venture[], summary: string) => void;
   onAIClear: () => void;
   onVentureClick: (venture: Venture) => void;
