@@ -54,7 +54,6 @@ tools = [
                     },
                     "limit": {
                         "type": "integer", 
-                        "default": 5, 
                         "description": "Number of results to return (useful for 'Top 3')."
                     }
                 },
