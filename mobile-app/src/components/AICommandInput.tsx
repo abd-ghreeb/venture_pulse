@@ -25,6 +25,10 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
         Audio.requestPermissionsAsync();
     }, []);
 
+    const clearInput = () => {
+        setQuery('');
+    };
+
     async function startRecording() {
         try {
             await Audio.setAudioModeAsync({
@@ -36,7 +40,7 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
             );
             setRecording(recording);
             setIsRecording(true);
-            setSummary(null);
+            // setSummary(null); <-- REMOVED: Keep summary visible while recording if user is sending a subsequent command
         } catch (err) {
             console.error('Failed to start recording', err);
         }
@@ -139,7 +143,7 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
             console.log("Session cleared successfully");
         } catch (error: any) {
             console.error("Session Reset Error:", error.message);
-            // Optional: Show a toast notification to the user
+            
         }
     };
 
@@ -168,7 +172,7 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
 
                 <View style={styles.buttonGroup}>
                     {query.length > 0 && !loading && (
-                        <TouchableOpacity onPress={handleReset} style={styles.iconButton}>
+                        <TouchableOpacity onPress={clearInput} style={styles.iconButton}>
                             <X size={18} color="#9CA3AF" />
                         </TouchableOpacity>
                     )}
