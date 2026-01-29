@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Rocket,
@@ -8,9 +8,11 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Zap
+  Zap,
+  LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import apiClient from '@/lib/apiClient';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -22,6 +24,7 @@ const navigation = [
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Handle automatic collapse on small screens
   useEffect(() => {
@@ -40,6 +43,16 @@ const Sidebar = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+
+  // --- LOGOUT HANDLER ---
+  const handleLogout = () => {
+    // 1. call BE to remove cockies
+    apiClient.logout();
+
+    // 2. Redirect to Auth page
+    navigate('/auth');
+  };
 
   return (
     <motion.aside
@@ -99,6 +112,23 @@ const Sidebar = () => {
         </ul>
       </nav>
 
+      {/* --- BOTTOM SECTION: LOGOUT --- */}
+      <div className="p-3 border-t border-sidebar-border">
+        <button
+          onClick={handleLogout}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
+            "text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+          )}
+        >
+          <LogOut className="w-5 h-5 flex-shrink-0" />
+          {!collapsed && (
+            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-medium">
+              Logout
+            </motion.span>
+          )}
+        </button>
+      </div>
 
       {/* Collapse Button */}
       <button

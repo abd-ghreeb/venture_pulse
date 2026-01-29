@@ -83,6 +83,7 @@ def get_active_context(chat_summary, history, session_state, sys_content):
         final_history.pop(0)
 
     return [SystemMessage(content=combined_instructions)] + final_history
+
 def agent_chatting(session_id, msg, session):    
     # 1. Load Session & Initialize History
     session_data = get_user_session(session_id=session_id) or {}
