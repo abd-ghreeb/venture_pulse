@@ -178,7 +178,7 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
                     </View>
 
                     {/* Markdown Renderer */}
-                    <Markdown style={markdownStyles}>
+                    <Markdown style={markdownStyles as any}>
                         {summary}
                     </Markdown>
                 </View>
@@ -279,3 +279,22 @@ const styles = StyleSheet.create({
         color: '#0C4A6E',
     },
 });
+
+const markdownStyles = StyleSheet.create({
+    body: {
+      fontSize: 14,
+      lineHeight: 20,
+      color: '#334155',
+    },
+    strong: {
+      fontWeight: '700', // Use numeric strings for fontWeight in Native TS
+      color: '#1E293B',
+    },
+    em: {
+      fontStyle: 'italic',
+    },
+    paragraph: {
+      marginTop: 0,
+      marginBottom: 0,
+    },
+  });
