@@ -114,6 +114,9 @@ export const AICommandInput = ({ onResults, onClear }: Props) => {
             if (result.data?.ventures) {
                 setSummary(result.answer || "Analysis complete.");
                 onResults(result.data.ventures); // Update list in parent
+            } 
+            else {
+                setSummary(result.answer || "Analysis complete.");
             }
         } catch (error: any) {
             // Show a user-friendly message in the AI Insight box
