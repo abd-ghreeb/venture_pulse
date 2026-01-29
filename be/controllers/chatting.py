@@ -50,36 +50,40 @@ def get_active_context(chat_summary, history, session_state, sys_content):
 
 
 def agent_chatting(session_id, msg, session):    
-    # 1. Load Session from Redis
+    # 1. Load Session (Ensures fresh start if reset)
     session_data = get_user_session(session_id=session_id) or {}
     chat_summary = session_data.get("summary", "")
-    history = messages_from_dict(session_data.get("messages", []))
     
-    # 2. Venture-Specific State
+    # Ensure history is a clean list
+    raw_history = session_data.get("messages", [])
+    history = messages_from_dict(raw_history) if raw_history else []
+    
     session_state = {
         "active_filters": session_data.get("active_filters", {}),
         "focused_ventures": session_data.get("focused_ventures", []),
-        "last_analysis_metrics": session_data.get("last_analysis_metrics", {})
+        "last_analysis_metrics": session_data.get("last_analysis_metrics", {}),
+        "focused_ventures_data": session_data.get("focused_ventures_data", [])
     }
 
     history.append(HumanMessage(content=msg))
     sys_content = PROMPTS.get("venture_analyst")["content"]
 
-    # 3. Execution with Tool Feedback Loop
-    for i in range(3):  
-        # Pass the cumulative history which now includes previous ToolMessages
+    for i in range(5):  
         active_messages = get_active_context(chat_summary, history, session_state, sys_content)
-        response = LLM_WITH_TOOLS.invoke(active_messages)
         
-        # We only append the AI's response to history here
+        try:
+            response = LLM_WITH_TOOLS.invoke(active_messages)
+        except Exception as e:
+            # SAFETY: If OpenAI rejects the history (e.g., due to the 400 error), 
+            # we must prune the last message if it was an incomplete tool call.
+            if "tool_calls" in str(e) and len(history) > 0:
+                history.pop() 
+            raise e
+        
         history.append(response)
 
+        # If no tools, we save and return
         if not response.tool_calls:
-            # Before returning, double check if focused_ventures_data exists.
-            # If the LLM just answered from memory without calling a tool in THIS specific turn,
-            # we need to make sure we didn't lose the data from the PREVIOUS turn.
-            
-            # Pull the data that was stored in session_state by the tool handler in the PREVIOUS iteration
             final_ventures = session_state.get("focused_ventures_data", [])
             final_ids = session_state.get("focused_ventures", [])
 
@@ -101,19 +105,18 @@ def agent_chatting(session_id, msg, session):
         # 4. Tool Handling
         for tool_call in response.tool_calls:
             handler = tool_map.get(tool_call["name"])
+            result = "No data found." # Default fallback
+            
             if handler:
                 tool_output = handler(state=session_state, payload=tool_call["args"], db=session)
                 
                 if isinstance(tool_output, dict):
-                    # This is the most important part: update the session_state object
                     if "state_update" in tool_output:
                         session_state.update(tool_output["state_update"])
                     
-                    # Update the specific data key
                     session_state["focused_ventures_data"] = tool_output.get("data", [])
                     result = tool_output.get("data")
                 
-                # This MUST be appended to history so the LLM sees it in the next i-loop
                 history.append(
                     ToolMessage(
                         tool_call_id=tool_call["id"], 
@@ -121,4 +124,9 @@ def agent_chatting(session_id, msg, session):
                     )
                 )       
 
-    return {"reply": "I've hit my reasoning limit. Could you rephrase the request?", "error": "LOOP_LIMIT"}
+    # If we exit the loop and the last message is an AIMessage with tool_calls,
+    # we MUST remove it before saving or the next session start will crash.
+    if hasattr(history[-1], 'tool_calls') and history[-1].tool_calls:
+        history.pop()
+
+    return {"reply": "I'm having trouble processing that data.", "error": "LOOP_LIMIT"}
