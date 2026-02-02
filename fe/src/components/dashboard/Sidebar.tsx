@@ -1,16 +1,7 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import {
-  LayoutDashboard,
-  Rocket,
-  Users2,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  Zap,
-  LogOut
-} from 'lucide-react';
+import { LayoutDashboard, Rocket, Users2, Settings, ChevronLeft, ChevronRight, Zap, LogOut, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import apiClient from '@/lib/apiClient';
 
@@ -21,131 +12,134 @@ const navigation = [
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
-interface SidebarProps {
-  className?: string;
-}
-
-const Sidebar = ({ className }: SidebarProps) => {
+const Sidebar = ({ className }: { className?: string }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false); // Toggle for mobile
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Handle automatic collapse on small screens
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1024) { // Collapse if width is less than 1024px
+      if (window.innerWidth < 1024) {
         setCollapsed(true);
       } else {
         setCollapsed(false);
+        setMobileOpen(false); // Close mobile menu if window is resized to desktop
       }
     };
-
-    // Run once on mount
     handleResize();
-
-    // Set up listener for window resizing
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-
-  // --- LOGOUT HANDLER ---
   const handleLogout = () => {
-    // 1. call BE to remove cockies
     apiClient.logout();
-
-    // 2. Redirect to Auth page
     navigate('/auth');
   };
 
-  return (
-    <motion.aside
-      animate={{ width: collapsed ? 80 : 260 }}
-      transition={{ duration: 0.3, ease: 'easeInOut' }}
-      className="h-screen bg-sidebar border-r border-sidebar-border flex flex-col relative flex-shrink-0 z-50"
-    >
-      {/* Logo */}
-      <div className="p-6 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center glow">
-          <Zap className="w-5 h-5 text-primary-foreground" />
+  const SidebarContent = (
+    <>
+      {/* Logo Section - Now clickable on mobile to close */}
+      <div className="p-6 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setMobileOpen(!mobileOpen)}>
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center glow">
+            <Zap className="w-5 h-5 text-primary-foreground" />
+          </div>
+          {(!collapsed || mobileOpen) && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <h1 className="font-semibold text-foreground text-lg leading-tight">Venture Pulse</h1>
+              <p className="text-xs text-muted-foreground">Utopia Studio</p>
+            </motion.div>
+          )}
         </div>
-        {!collapsed && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <h1 className="font-semibold text-foreground text-lg">Venture Pulse</h1>
-            <p className="text-xs text-muted-foreground">Utopia Studio</p>
-          </motion.div>
+        {mobileOpen && (
+          <button onClick={() => setMobileOpen(false)} className="lg:hidden">
+            <X className="w-5 h-5 text-muted-foreground" />
+          </button>
         )}
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 px-3 py-4">
         <ul className="space-y-1">
-          {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
-            return (
-              <li key={item.name}>
-                <NavLink
-                  to={item.href}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-                    "hover:bg-sidebar-accent",
-                    isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground"
-                  )}
-                >
-                  <item.icon className={cn(
-                    "w-5 h-5 flex-shrink-0",
-                    isActive && "text-primary"
-                  )} />
-                  {!collapsed && (
-                    <motion.span
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="font-medium"
-                    >
-                      {item.name}
-                    </motion.span>
-                  )}
-                </NavLink>
-              </li>
-            );
-          })}
+          {navigation.map((item) => (
+            <li key={item.name}>
+              <NavLink
+                to={item.href}
+                onClick={() => setMobileOpen(false)} // Close on navigate
+                className={({ isActive }) => cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
+                  isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                )}
+              >
+                <item.icon className="w-5 h-5 flex-shrink-0" />
+                {(!collapsed || mobileOpen) && <span className="font-medium">{item.name}</span>}
+              </NavLink>
+            </li>
+          ))}
         </ul>
       </nav>
 
-      {/* --- BOTTOM SECTION: LOGOUT --- */}
       <div className="p-3 border-t border-sidebar-border">
-        <button
-          onClick={handleLogout}
-          className={cn(
-            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-            "text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-          )}
-        >
+        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all">
           <LogOut className="w-5 h-5 flex-shrink-0" />
-          {!collapsed && (
-            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-medium">
-              Logout
-            </motion.span>
-          )}
+          {(!collapsed || mobileOpen) && <span className="font-medium">Logout</span>}
+        </button>
+      </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile Toggle Button (Logo/Menu) - Only visible on small screens when sidebar is hidden */}
+      <div className="lg:hidden fixed top-4 left-4 z-[60]">
+        <button 
+          onClick={() => setMobileOpen(true)}
+          className="p-2 bg-background border border-border rounded-lg shadow-sm"
+        >
+          <Menu className="w-6 h-6 text-foreground" />
         </button>
       </div>
 
-      {/* Collapse Button */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-8 w-6 h-6 rounded-full bg-secondary border border-border flex items-center justify-center hover:bg-accent transition-colors"
-      >
-        {collapsed ? (
-          <ChevronRight className="w-3 h-3 text-muted-foreground" />
-        ) : (
-          <ChevronLeft className="w-3 h-3 text-muted-foreground" />
+      {/* Desktop Sidebar */}
+      <motion.aside
+        animate={{ width: collapsed ? 80 : 260 }}
+        className={cn(
+          "hidden lg:flex h-screen bg-sidebar border-r border-sidebar-border flex-col relative flex-shrink-0 z-50",
+          className
         )}
-      </button>
-    </motion.aside>
+      >
+        {SidebarContent}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute -right-3 top-8 w-6 h-6 rounded-full bg-secondary border border-border flex items-center justify-center hover:bg-accent transition-colors"
+        >
+          {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
+        </button>
+      </motion.aside>
+
+      {/* Mobile Overlay Sidebar */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileOpen(false)}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[70] lg:hidden"
+            />
+            <motion.aside
+              initial={{ x: -280 }}
+              animate={{ x: 0 }}
+              exit={{ x: -280 }}
+              className="fixed inset-y-0 left-0 w-[280px] bg-sidebar border-r border-sidebar-border z-[80] flex flex-col lg:hidden shadow-2xl"
+            >
+              {SidebarContent}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
